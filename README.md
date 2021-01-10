@@ -1,3 +1,17 @@
+## redux tooklit
+
+```
+npm i @reduxjs/toolkit
+```
+
+- redux, redux-thunk, immer, redux-devtool-extension 내장
+- redux-saga에서 takeLatest, takeEvery밖에 잘 안 쓰는데 thunk 쓰는거랑 비슷함.
+- 
+
+
+
+---
+
 ## 리덕스 미들웨어
 
 ```js
