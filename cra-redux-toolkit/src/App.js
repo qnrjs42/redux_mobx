@@ -5,20 +5,48 @@ import { logIn, logOut } from './actions/user';
 import userSlice from './reducers/user';
 import { addPost } from './actions/post';
 
-function App() {
-  // const { email, password } = useSelector((state) => state.user);
-  const email = useSelector((state) => state.user.email);
-  const password = useSelector((state) => state.user.password);
-  const dispatch = useDispatch();
-  // const [email, setEmail] = useState('');
-  // const [password, setPassword] = useState('');
+const axios = () => {};
 
-  const onClick = useCallback(() => {
-    dispatch(logIn({
-      id: 'tester',
-      password: 'password',
+function App() {
+  const user = useSelector((state) => state.user);
+  const dispatch = useDispatch();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loadings, setLoadings] = useState(false);
+  const [errors, setErrors] = useState(false);
+  const [dones, setDones] = useState(false);
+  const [loadingIds, setLoadingIds] = useState([]);
+
+  const onClick = useCallback(async () => {
+    const id = new Date().valueOf();
+    setLoadings((prev) => ({
+      ...prev,
+      [id]: { type: 'LOGIN_LOADING' }
     }));
+    setLoadingIds((prev) => prev.concat(id));
+    setDones(false);
+    setErrors(false);
+    try {
+      const { data } = await axios.post('/login');
+      setErrors(false);
+    } catch (err) {
+      setErrors(err);
+    } finally {
+      setLoadings((prev) => {
+        const newObj = JSON.parse(JSON.stringify(prev));
+        delete newObj[id];
+        return newObj;
+      });
+      setDones(true);
+    }
   }, []);
+
+  // const onClick = useCallback(() => {
+  //   dispatch(logIn({
+  //     id: 'tester',
+  //     password: 'password',
+  //   }));
+  // }, []);
 
   const onLogout = useCallback(() => {
     dispatch(userSlice.actions.logOut());

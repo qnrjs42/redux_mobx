@@ -283,6 +283,43 @@ const postSlice = createSlice({
 
 
 
+### 리덕스를 쓰지 말아야 할 때(비동기)
+
+- 만약 `const logIn = createAsyncThunk('user/logIn', async(data, thnukAPI) => {...}` 액션이 한 곳에서만 사용 된다면(하나의 컴포넌트에서만 요청이 발생하고 다른 컴포넌트에서는 요청을 발생시키지 않을 때) 그냥 바로 요청을 보내면 된다.
+
+- ```js
+  const [loadings, setLoadings] = useState(false);
+  const [errors, setErrors] = useState(false);
+  const [dones, setDones] = useState(false);
+  const [loadingIds, setLoadingIds] = useState([]);
+  
+  const onClick = useCallback(async () => {
+      const id = new Date().valueOf();
+      setLoadings((prev) => ({
+        ...prev,
+        [id]: { type: 'LOGIN_LOADING' }
+      }));
+      setLoadingIds((prev) => prev.concat(id));
+      setDones(false);
+      setErrors(false);
+      try {
+        const { data } = await axios.post('/login');
+        setErrors(false);
+      } catch (err) {
+        setErrors(err);
+      } finally {
+        setLoadings((prev) => {
+          const newObj = JSON.parse(JSON.stringify(prev));
+          delete newObj[id];
+          return newObj;
+        });
+        setDones(true);
+      }
+  }, []);
+  ```
+
+- 주의할 점은 `requestId`를 만들어 줘서 누구의 요청인지 파악하는게 좋다.
+
 ---
 
 ## 리덕스 미들웨어
