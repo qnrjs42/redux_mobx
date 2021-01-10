@@ -5,6 +5,8 @@ const { logIn } = require('../actions/user');
 const initialState = {
   isLoggingIn: false,
   data: null,
+  email: '',
+  password: '',
 };
 
 // const userReducer = (state = initialState, action) => {

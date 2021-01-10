@@ -243,8 +243,8 @@ const postSlice = createSlice({
     // builder의 addCase는 typescript의 타입 추론 사용할 때 편하다.
     .addCase(addPost.pending, (state, action) => {
       // state 자체를 바뀌어야할 경우(불변성이 깨질 때)
-      // state = 123;
       // return state를 해주면 된다.
+      // state = 123;
       // return state;
     })
     .addCase(addPost.fulfilled, (state, action) => {
@@ -263,6 +263,23 @@ const postSlice = createSlice({
 ```
 
 
+
+### 리덕스를 쓰지 말아야 할 때 (인풋)
+
+```jsx
+// App.js
+
+1. const user = useSelector((state) => state.user);
+2. const { email, password } = useSelector((state) => state.user);
+3. const email = useSelector((state) => state.user.email);
+   const password = useSelector((state) => state.user.password);
+```
+
+- 1번 코드와 2번 코드는 비슷하게 동작한다. user 중 어떤 값이라도 바뀌면 렌더링이 된다.
+
+- 3번 코드는 `user.email`과 `user.password`만 바뀌면 렌더링이 된다.
+
+성능 최적화는 처음부터 생각하면 힘들고 나중에 성능 이슈가 생겼을 때 그 부분을 최적화하는게 정신건강에 좋다.
 
 
 
