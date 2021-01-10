@@ -1,63 +1,34 @@
 const { createAsyncThunk } = require('@reduxjs/toolkit');
 
+const delay = (time, value) => new Promise((resolve, reject) => {
+  setTimeout(() => {
+    resolve(value);
+  }, time);
+});
+
+// data param은 dispatch할 때의 data
 const logIn = createAsyncThunk('user/logIn', async(data, thnukAPI) => {
   // thnukAPI에서는 현재 state 정보를 가져올 수 있음 | state.user.data 등등
   // const state = thnukAPI.getState();
   /**
    * 용어 변경
    * loading -> pending
-   * success -> fulfulled
+   * success -> fulfilled
    * failure -> rejected
    */
+
+  // async/await 부분에서 보통 try/catch로 감싸는데 createAsyncThunk는 감싸지 않아도 된다.
+  // 에러가 발생해야 createAsyncThunk가 rejected 상태로 넘겨줌.
+  // 에러가 없으면 fulfilled 상태로 넘겨줌.
+  console.log(data);
+  const result = await delay(500, {
+    userId: 1,
+    nickname: "tester",
+  });
+
+  // return resulst <- resulst가 action.payload가 된다.
+  return result;
 });
-
-const logIn = (data) => { // async action creator
-  return (dispatch, getState) => {
-    dispatch(logInRequest(data));
-    try {
-      setTimeout(() => {
-        dispatch(
-          logInSuccess({
-            userId: 1,
-            nickname: "tester",
-          })
-        );
-      }, 2000);
-    } catch (err) {
-      dispatch(logInFailure(err));
-    }
-  }
-}
-
-const LOG_IN_REQUEST = "LOG_IN_REQUEST";
-const LOG_IN_SUCCESS = "LOG_IN_SUCCESS";
-const LOG_IN_FAILURE = "LOG_IN_FAILURE";
-const LOG_OUT_REQUEST = "LOG_OUT_REQUEST";
-const LOG_OUT_SUCCESS = "LOG_OUT_SUCCESS";
-const LOG_OUT_FAILURE = "LOG_OUT_FAILURE";
-
-
-
-const logInRequest = (data) => {
-  return {
-    type: LOG_IN_REQUEST,
-    data,
-  }
-};
-
-const logInSuccess = (data) => {
-  return {
-    type: LOG_IN_SUCCESS,
-    data,
-  }
-}
-
-const logInFailure = (err) => {
-  return {
-    type: LOG_IN_FAILURE,
-    err,
-  };
-};
 
 module.exports = {
   logIn,

@@ -1,5 +1,7 @@
 const { createSlice } = require("@reduxjs/toolkit");
 
+const { logIn } = require('../actions/user');
+
 const initialState = {
   isLoggingIn: false,
   data: null,
@@ -41,7 +43,22 @@ const userSlice = createSlice({
     },
   },
   // extraReducers: 비동기적
-  extraReducers: {},
+  // 외부 요청이 필요한 경우 extraReducers를 사용
+  extraReducers: {
+    // immer가 적용되어 있음
+    [logIn.pending](state, action) {
+      state.isLoggingIn = true;
+    },
+    [logIn.fulfilled](state, action) {
+      // actions/user에서 보낸 return 값이 action.payload에 있음.
+      state.data = action.payload;
+      state.isLoggingIn = false;
+    },
+    [logIn.rejected](state, action) {
+      state.data = null;
+      state.isLoggingIn = false;
+    },
+  },
 });
 
 module.exports = userSlice;
