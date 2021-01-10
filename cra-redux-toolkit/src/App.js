@@ -1,5 +1,6 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { createSelector } from '@reduxjs/toolkit';
 
 import { logIn, logOut } from './actions/user';
 import userSlice from './reducers/user';
@@ -7,46 +8,24 @@ import { addPost } from './actions/post';
 
 const axios = () => {};
 
+const priceSelector = (state) => state.user.prices;
+const sumPriceSelector = createSelector(priceSelector, (prices) =>
+  prices.reduce((a, c) => a + c, 0)
+);
+
 function App() {
   const user = useSelector((state) => state.user);
+  const totalPrices = useSelector(sumPriceSelector);
   const dispatch = useDispatch();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [loadings, setLoadings] = useState(false);
-  const [errors, setErrors] = useState(false);
-  const [dones, setDones] = useState(false);
-  const [loadingIds, setLoadingIds] = useState([]);
 
-  const onClick = useCallback(async () => {
-    const id = new Date().valueOf();
-    setLoadings((prev) => ({
-      ...prev,
-      [id]: { type: 'LOGIN_LOADING' }
+  const onClick = useCallback(() => {
+    dispatch(logIn({
+      id: 'tester',
+      password: 'password',
     }));
-    setLoadingIds((prev) => prev.concat(id));
-    setDones(false);
-    setErrors(false);
-    try {
-      const { data } = await axios.post('/login');
-      setErrors(false);
-    } catch (err) {
-      setErrors(err);
-    } finally {
-      setLoadings((prev) => {
-        const newObj = JSON.parse(JSON.stringify(prev));
-        delete newObj[id];
-        return newObj;
-      });
-      setDones(true);
-    }
   }, []);
-
-  // const onClick = useCallback(() => {
-  //   dispatch(logIn({
-  //     id: 'tester',
-  //     password: 'password',
-  //   }));
-  // }, []);
 
   const onLogout = useCallback(() => {
     dispatch(userSlice.actions.logOut());
@@ -87,6 +66,10 @@ function App() {
         <button onClick={onLogout}>로그아웃</button>
       )}
       <button onClick={onAddPost}>게시글 작성</button>
+
+      <div>
+        <b>{totalPrices}원</b>
+      </div>
 
       <form onSubmit={onSubmit}>
         <input type="email" value={email} onChange={onChangeEmail} />

@@ -320,6 +320,8 @@ const postSlice = createSlice({
 
 - 주의할 점은 `requestId`를 만들어 줘서 누구의 요청인지 파악하는게 좋다.
 
+
+
 ---
 
 ## 리덕스 미들웨어
