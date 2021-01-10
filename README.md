@@ -27,7 +27,7 @@ npm i @reduxjs/toolkit
 
 ```js
 // store.js
-const { configureStore } = require('@reduxjs/toolkit'); 
+const { configureStore, getDefaultMiddleware } = require('@reduxjs/toolkit'); 
 
 const reducer = require('./reducers');
 
@@ -38,8 +38,8 @@ const firstMiddleware = (store) => (next) => (action) => {
 
 const store = configureStore({
   reducer,
-  middleware: [firstMiddleware],
-  devTools: process.env.NODE_env !== 'production',
+  middleware: [firstMiddleware, ...getDefaultMiddleware()],
+  devTools: process.env.NODE_ENV !== "production",
 });
 
 module.exports = store;
@@ -101,7 +101,6 @@ const onLogout = useCallback(() => {
 
 ```js
 // actions/user.js
-
 const { createAsyncThunk } = require('@reduxjs/toolkit');
 
 const delay = (time, value) => new Promise((resolve, reject) => {
@@ -110,9 +109,7 @@ const delay = (time, value) => new Promise((resolve, reject) => {
   }, time);
 });
 
-/**
- * data param은 dispatch할 때의 data
- */
+// data param은 dispatch할 때의 data
 const logIn = createAsyncThunk('user/logIn', async(data, thnukAPI) => {
   // thnukAPI에서는 현재 state 정보를 가져올 수 있음 | state.user.data 등등
   // const state = thnukAPI.getState();
@@ -183,6 +180,86 @@ const userSlice = createSlice({
 });
 
 module.exports = userSlice;
+```
+
+
+
+```js
+chrome redux devtools에서
+logIn/pending, logIn/fulfulled의 Action 상태를 보면
+
+// pending
+meta: {
+	args: {
+		id: "tester",
+		password: "password",
+	},
+	requestId: "ES-7uAbQt1G7aOCypRrFl"
+	requestStatus: "pending"
+}
+
+// fulfilled
+meta: {
+	args: {
+		id: "tester",
+		password: "password",
+	},
+	requestId: "ES-7uAbQt1G7aOCypRrFl"
+	requestStatus: "fulfilled"
+}
+```
+
+- 여기서 `meta.args`는 요청을 보낼 때의 값이다.
+
+  ```js
+  const onClick = useCallback(() => {
+      dispatch(logIn({
+        id: 'tester',
+        password: 'password',
+      }));
+  }, []);
+  ```
+
+- `requestId`는 하나의 요청에 누구의 값인지 알 수 있게 판단.
+
+
+
+### extraReducers builder (addCase, addMatcher)
+
+```js
+// reducers/post.js
+const postSlice = createSlice({
+  // name은 reducer 이름이라고 생각하면 쉬움
+  name: "post",
+  initialState,
+  // reducers: 동기적
+  reducers: {
+    clearPost(state, action) {
+      state.data = [];
+    },
+  },
+  // extraReducers: 비동기적
+  extraReducers: (builder) => builder
+    // builder의 addCase는 typescript의 타입 추론 사용할 때 편하다.
+    .addCase(addPost.pending, (state, action) => {
+      // state 자체를 바뀌어야할 경우(불변성이 깨질 때)
+      // state = 123;
+      // return state를 해주면 된다.
+      // return state;
+    })
+    .addCase(addPost.fulfilled, (state, action) => {
+      state.data.push(action.payload);
+    })
+    .addCase(addPost.rejected, (state, action) => {})
+    // addMatcher는 여러 액션들 중 중복 코드 발생할 때 처리
+    .addMatcher((action) => {
+        return action.type.includes('/pending');
+      }, (state, action) => {
+        state.isLoading = true;
+      }
+    )
+    .addDefaultCase(() => {}),
+});
 ```
 
 

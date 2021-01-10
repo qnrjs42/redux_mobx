@@ -21,7 +21,7 @@ const logIn = createAsyncThunk('user/logIn', async(data, thnukAPI) => {
   // 에러가 발생해야 createAsyncThunk가 rejected 상태로 넘겨줌.
   // 에러가 없으면 fulfilled 상태로 넘겨줌.
   console.log(data);
-  const result = await delay(500, {
+  const result = await delay(2000, {
     userId: 1,
     nickname: "tester",
   });

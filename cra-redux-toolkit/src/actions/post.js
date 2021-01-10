@@ -10,6 +10,7 @@ const delay = (time, value) =>
 const addPost = createAsyncThunk('post/add', async () => {
   return await delay(500, {
     title: '새 게시글',
+    content: 'content',
   });
 });
 

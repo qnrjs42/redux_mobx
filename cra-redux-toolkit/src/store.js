@@ -1,4 +1,4 @@
-const { configureStore } = require('@reduxjs/toolkit'); 
+const { configureStore, getDefaultMiddleware } = require('@reduxjs/toolkit'); 
 
 const reducer = require('./reducers');
 
@@ -9,8 +9,8 @@ const firstMiddleware = (store) => (next) => (action) => {
 
 const store = configureStore({
   reducer,
-  middleware: [firstMiddleware],
-  devTools: process.env.NODE_env !== 'production',
+  middleware: [firstMiddleware, ...getDefaultMiddleware()],
+  devTools: process.env.NODE_ENV !== "production",
 });
 
 module.exports = store;
