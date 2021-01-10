@@ -5,8 +5,95 @@ npm i @reduxjs/toolkit
 ```
 
 - redux, redux-thunk, immer, redux-devtool-extension 내장
+
 - redux-saga에서 takeLatest, takeEvery밖에 잘 안 쓰는데 thunk 쓰는거랑 비슷함.
-- 
+
+- throttle 같은 경우 loadsh를 사용하면 redux-thunk+loadsh 조합하면 saga 효과낼 수 있음.
+
+- 여태 action을 만들어 왔는데 이제 tooklit이 해줌. 그래서 아래에 있는 코드는 더 이상 필요 없음.
+
+- 그렇게 되면 action을 관리할 필요 없어지게 되고 reducer만 관리할 수 있어 코드도 짧아짐.
+
+  ```js
+  예시 action
+  const logOut = () => {
+    return {
+      type: LOG_OUT_REQUEST,
+    };
+  };
+  ```
+
+  
+
+```js
+// store.js
+const { configureStore } = require('@reduxjs/toolkit'); 
+
+const reducer = require('./reducers');
+
+const firstMiddleware = (store) => (next) => (action) => {
+  console.log('action 로깅', action);
+  next(action);
+};
+
+const store = configureStore({
+  reducer,
+  middleware: [firstMiddleware],
+  devTools: process.env.NODE_env !== 'production',
+});
+
+module.exports = store;
+```
+
+```js
+// reducers/index.js
+const { combineReducers } = require('redux')
+
+const userSlice = require('./user');
+const postSlice = require("./post");
+
+module.exports = combineReducers({
+  user: userSlice.reducer,
+  post: postSlice.reducer,
+});
+```
+
+```js
+// reducers/user.js
+const initialState = {
+  isLoggingIn: false,
+  data: null,
+};
+
+const userSlice = createSlice({
+  // name은 reducer 이름이라고 생각하면 쉬움
+  name: "user",
+  initialState,
+  // reducers: 동기적
+  reducers: {
+    // state는 initialState 구조 따라간다.
+    logOut(state, action) {
+      state.data = null;
+    },
+  },
+  // extraReducers: 비동기적(네트워크 요청 등)
+  extraReducers: {},
+});
+```
+
+- 여기서 파일 구조를 동기적/비동기적으로 나눌 필요가 있는데 `src/actions/`폴더 안에 비동기적 함수들을 모아둠.
+- 동기적 함수들은 그냥 `reducers: {}` 부분에 넣음.
+
+```jsx
+// App.js
+import userSlice from './reducers/user';
+
+...
+// userSlice에서 actions를 꺼내 logOut 함수를 실행한다.
+const onLogout = useCallback(() => {
+	dispatch(userSlice.actions.logOut());
+}, []);
+```
 
 
 

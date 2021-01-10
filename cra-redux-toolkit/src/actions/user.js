@@ -1,3 +1,16 @@
+const { createAsyncThunk } = require('@reduxjs/toolkit');
+
+const logIn = createAsyncThunk('user/logIn', async(data, thnukAPI) => {
+  // thnukAPI에서는 현재 state 정보를 가져올 수 있음 | state.user.data 등등
+  // const state = thnukAPI.getState();
+  /**
+   * 용어 변경
+   * loading -> pending
+   * success -> fulfulled
+   * failure -> rejected
+   */
+});
+
 const logIn = (data) => { // async action creator
   return (dispatch, getState) => {
     dispatch(logInRequest(data));
@@ -46,13 +59,6 @@ const logInFailure = (err) => {
   };
 };
 
-const logOut = () => {
-  return {
-    type: LOG_OUT_REQUEST,
-  };
-};
-
 module.exports = {
   logIn,
-  logOut,
 };
